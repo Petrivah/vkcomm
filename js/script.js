@@ -1,5 +1,6 @@
 const defaultToken = {
-    token: ''
+    token: '',
+    removable: true
 };
 
 let vue = new Vue({
@@ -13,27 +14,31 @@ let vue = new Vue({
         interval: '',
         current_interval: null,
         comment_text: '',
-        working: false
+        working: false,
+        debug: false
     },
     methods: {
         deleteToken(id) {
             this.tokens.splice(id, 1);
         },
         addToken() {
-            this.tokens.push({
-                ...defaultToken,
-                removable: true
-            });
+            this.tokens.push(defaultToken);
         },
         startSpam() {
-            let tokens  = this.tokens.map(token => token.token),
+            let tokens = this.tokens.map(token => token.token),
                 address = this.post_address,
                 {
                     groups: {
-                        group_id, post_id
+                        group_id,
+                        post_id
                     }
-                } = address.match(/^http?s:\/\/(?:www)?vk\.com\/.*?wall(?<group_id>-?\d+?)_(?<post_id>\d+).+$/)
-                    || {groups: {group_id: undefined, post_id: undefined}},
+                } = address.match(/^http?s:\/\/(?:www)?vk\.com\/.*?wall(?<group_id>-?\d+?)_(?<post_id>\d+).*$/) ||
+                {
+                    groups: {
+                        group_id: undefined,
+                        post_id: undefined
+                    }
+                },
                 interval = this.interval,
                 comment_text = encodeURIComponent(this.comment_text),
                 comment_count = 0;
@@ -41,15 +46,28 @@ let vue = new Vue({
                 console.error('Неверный URL поста!');
             } else if (tokens.filter(token => token.length < 84 || token.length > 86)[0]) {
                 console.error('Неверная длина одного из токенов!');
-            } else if (!this.interval.match(/^\d+\.?\d*$/)) {
-                console.error('Неверный интервал (дробный разделитель - точка)!');
+            } else if (!this.interval.match(/^\d+$/)) {
+                console.error('Неверный интервал (пишите в мс)!');
             } else {
+                console.clear();
                 this.working = true;
+                let repeat = 0;
                 this.current_interval = setInterval(() => {
-                    for (i in tokens) {
-                        fetch(`https://cors.io/?https://api.vk.com/method/wall.createComment?owner_id=${group_id}&post_id=${post_id}&from_group=1&message=${comment_text}&access_token=${tokens[i]}&v=5.95`);
+                    for (index in tokens) {
+                        let i = index;
+                        setTimeout(() => {
+                            let url = `https://cors.io/?https://api.vk.com/method/wall.createComment?owner_id=${group_id}&post_id=${post_id}&from_group=1&message=${comment_text}&access_token=${tokens[i]}&v=5.95`;
+                            fetch(url);
+                            if (this.debug) {
+                                console.log({
+                                    url,
+                                    timeout: interval / tokens.length * i,
+                                    full_timeout: repeat * interval + interval / tokens.length * i
+                                })
+                            }
+                        }, interval / tokens.length * i);
                     }
-                    console.log(`Комментов отправлено: ${comment_count+=tokens.length}шт`);
+                    repeat++;
                 }, interval);
             };
         },
