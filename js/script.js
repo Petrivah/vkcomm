@@ -56,7 +56,8 @@ let vue = new Vue({
                     for (index in tokens) {
                         let i = index;
                         setTimeout(() => {
-                            let url = `https://cors.io/?https://api.vk.com/method/wall.createComment?owner_id=${group_id}&post_id=${post_id}&from_group=1&message=${comment_text}&access_token=${tokens[i]}&v=5.95`;
+                            let component = encodeURIComponent(`https://api.vk.com/method/wall.createComment?owner_id=${group_id}&post_id=${post_id}&from_group=1&message=${comment_text}&access_token=${tokens[i]}&v=5.95`),
+                                url = `https://api.codetabs.com/v1/proxy?quest=${component}`;
                             fetch(url);
                             if (this.debug) {
                                 console.log({
