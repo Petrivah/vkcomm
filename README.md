@@ -1,5 +1,4 @@
 [io-page]: https://petrivah.github.io/vkcomm/ "Страница на GitHub Pages"
-[ERROR BOT]: https://vk.com/error_dnn
 [Wynell]: https://vk.com/p3trukh1n
 
 VKcomm
@@ -19,4 +18,4 @@ VKcomm
 > Если текст кнопки не изменился на `Закончить спамить`, то что-то у вас не так.\
 > Значит, проверьте консоль браузера (Ctrl+Shift+J)
 
-© [ERROR BOT] & [Wynell]
+© [Wynell]
